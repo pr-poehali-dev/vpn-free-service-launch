@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 
 const servers = [
@@ -32,6 +33,12 @@ export default function Index() {
   const [activeTab, setActiveTab] = useState<'home' | 'servers' | 'stats'>('home');
   const [selectedServer, setSelectedServer] = useState(servers[0]);
   const [dataUsed, setDataUsed] = useState({ upload: 2.3, download: 15.7 });
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredServers = servers.filter((server) =>
+    server.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    server.city.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleConnect = () => {
     setIsConnected(!isConnected);
@@ -162,8 +169,25 @@ export default function Index() {
             <h2 className="text-2xl font-bold">Выбор сервера</h2>
           </div>
 
-          <div className="space-y-3">
-            {servers.map((server) => (
+          <div className="relative mb-6">
+            <Icon name="Search" size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Поиск по стране или городу..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-card/50 backdrop-blur-lg border-border"
+            />
+          </div>
+
+          {filteredServers.length === 0 ? (
+            <div className="text-center py-12">
+              <Icon name="SearchX" size={48} className="mx-auto mb-4 text-muted-foreground" />
+              <p className="text-muted-foreground">Серверы не найдены</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredServers.map((server) => (
               <Card
                 key={server.id}
                 className={`bg-card/50 backdrop-blur-lg border-border p-4 cursor-pointer transition-all hover:scale-[1.02] ${
@@ -197,8 +221,9 @@ export default function Index() {
                   </div>
                 </div>
               </Card>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
