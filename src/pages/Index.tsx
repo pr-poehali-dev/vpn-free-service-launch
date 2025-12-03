@@ -13,6 +13,18 @@ const servers = [
   { id: 6, country: 'Нидерланды', flag: '🇳🇱', city: 'Амстердам', ping: 30, load: 12 },
   { id: 7, country: 'Сингапур', flag: '🇸🇬', city: 'Сингапур', ping: 102, load: 35 },
   { id: 8, country: 'Канада', flag: '🇨🇦', city: 'Торонто', ping: 56, load: 21 },
+  { id: 9, country: 'Австралия', flag: '🇦🇺', city: 'Сидней', ping: 125, load: 38 },
+  { id: 10, country: 'Бразилия', flag: '🇧🇷', city: 'Сан-Паулу', ping: 145, load: 45 },
+  { id: 11, country: 'Индия', flag: '🇮🇳', city: 'Мумбаи', ping: 98, load: 52 },
+  { id: 12, country: 'Южная Корея', flag: '🇰🇷', city: 'Сеул', ping: 82, load: 31 },
+  { id: 13, country: 'ОАЭ', flag: '🇦🇪', city: 'Дубай', ping: 110, load: 29 },
+  { id: 14, country: 'Швейцария', flag: '🇨🇭', city: 'Цюрих', ping: 28, load: 18 },
+  { id: 15, country: 'Швеция', flag: '🇸🇪', city: 'Стокгольм', ping: 34, load: 22 },
+  { id: 16, country: 'Испания', flag: '🇪🇸', city: 'Мадрид', ping: 41, load: 25 },
+  { id: 17, country: 'Италия', flag: '🇮🇹', city: 'Рим', ping: 39, load: 27 },
+  { id: 18, country: 'Польша', flag: '🇵🇱', city: 'Варшава', ping: 33, load: 20 },
+  { id: 19, country: 'Турция', flag: '🇹🇷', city: 'Стамбул', ping: 55, load: 36 },
+  { id: 20, country: 'Мексика', flag: '🇲🇽', city: 'Мехико', ping: 78, load: 33 },
 ];
 
 export default function Index() {
@@ -32,7 +44,7 @@ export default function Index() {
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
               <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                SecureVPN
+                SHOTO VPN
               </h1>
               <p className="text-muted-foreground">Ваша приватность защищена</p>
             </div>
