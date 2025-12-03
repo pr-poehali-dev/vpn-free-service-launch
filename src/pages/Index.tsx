@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -30,11 +30,13 @@ const servers = [
 
 export default function Index() {
   const [isConnected, setIsConnected] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [activeTab, setActiveTab] = useState<'home' | 'servers' | 'stats'>('home');
   const [selectedServer, setSelectedServer] = useState(servers[0]);
   const [dataUsed, setDataUsed] = useState({ upload: 2.3, download: 15.7 });
   const [searchQuery, setSearchQuery] = useState('');
   const [pingFilter, setPingFilter] = useState<'all' | 'fast' | 'medium' | 'slow'>('all');
+  const [connectionTime, setConnectionTime] = useState(0);
 
   const filteredServers = servers
     .filter((server) =>
@@ -55,7 +57,34 @@ export default function Index() {
   };
 
   const handleConnect = () => {
-    setIsConnected(!isConnected);
+    if (isConnected) {
+      setIsConnected(false);
+      setConnectionTime(0);
+      return;
+    }
+
+    setIsConnecting(true);
+    setTimeout(() => {
+      setIsConnecting(false);
+      setIsConnected(true);
+    }, 2000);
+  };
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isConnected) {
+      interval = setInterval(() => {
+        setConnectionTime((prev) => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isConnected]);
+
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -73,7 +102,7 @@ export default function Index() {
             <Card className="bg-card/50 backdrop-blur-lg border-border p-6 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <span className="text-4xl">{selectedServer.flag}</span>
+                  <div className="text-5xl w-14 h-14 flex items-center justify-center">{selectedServer.flag}</div>
                   <div>
                     <p className="font-semibold text-lg">{selectedServer.country}</p>
                     <p className="text-sm text-muted-foreground">{selectedServer.city}</p>
@@ -106,7 +135,9 @@ export default function Index() {
             <div className="relative mb-6">
               <div
                 className={`w-48 h-48 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300 ${
-                  isConnected
+                  isConnecting
+                    ? 'bg-gradient-to-br from-yellow-500 to-orange-600 animate-pulse'
+                    : isConnected
                     ? 'bg-gradient-to-br from-green-500 to-emerald-600 animate-pulse-glow'
                     : 'bg-gradient-to-br from-purple-600 to-blue-600 hover:scale-105'
                 }`}
@@ -114,9 +145,9 @@ export default function Index() {
               >
                 <div className="w-40 h-40 rounded-full bg-background/20 backdrop-blur-sm flex items-center justify-center">
                   <Icon
-                    name={isConnected ? 'ShieldCheck' : 'Shield'}
+                    name={isConnecting ? 'Loader2' : isConnected ? 'ShieldCheck' : 'Shield'}
                     size={64}
-                    className="text-white"
+                    className={`text-white ${isConnecting ? 'animate-spin' : ''}`}
                   />
                 </div>
               </div>
@@ -128,14 +159,24 @@ export default function Index() {
                   </Badge>
                 </div>
               )}
+              {isConnecting && (
+                <div className="absolute -top-2 -right-2">
+                  <Badge className="bg-yellow-500 text-white animate-fade-in">
+                    <Icon name="Loader2" size={12} className="mr-1 animate-spin" />
+                    Подключение...
+                  </Badge>
+                </div>
+              )}
             </div>
 
             <h2 className="text-2xl font-bold mb-2">
-              {isConnected ? 'Соединение защищено' : 'Нажмите для подключения'}
+              {isConnecting ? 'Подключение к серверу...' : isConnected ? 'Соединение защищено' : 'Нажмите для подключения'}
             </h2>
             <p className="text-muted-foreground text-center max-w-sm">
-              {isConnected
-                ? 'Ваш трафик зашифрован и защищён от слежки'
+              {isConnecting
+                ? `Установка связи с ${selectedServer.country}...`
+                : isConnected
+                ? `Время сессии: ${formatTime(connectionTime)}`
                 : 'Защитите своё соединение одним касанием'}
             </p>
           </div>
@@ -253,7 +294,7 @@ export default function Index() {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <span className="text-4xl">{server.flag}</span>
+                    <div className="text-5xl w-14 h-14 flex items-center justify-center">{server.flag}</div>
                     <div>
                       <p className="font-semibold text-lg">{server.country}</p>
                       <p className="text-sm text-muted-foreground">{server.city}</p>
