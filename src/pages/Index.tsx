@@ -34,11 +34,25 @@ export default function Index() {
   const [selectedServer, setSelectedServer] = useState(servers[0]);
   const [dataUsed, setDataUsed] = useState({ upload: 2.3, download: 15.7 });
   const [searchQuery, setSearchQuery] = useState('');
+  const [pingFilter, setPingFilter] = useState<'all' | 'fast' | 'medium' | 'slow'>('all');
 
-  const filteredServers = servers.filter((server) =>
-    server.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    server.city.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredServers = servers
+    .filter((server) =>
+      server.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      server.city.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .filter((server) => {
+      if (pingFilter === 'fast') return server.ping < 50;
+      if (pingFilter === 'medium') return server.ping >= 50 && server.ping < 100;
+      if (pingFilter === 'slow') return server.ping >= 100;
+      return true;
+    });
+
+  const getPingBadge = (ping: number) => {
+    if (ping < 50) return { label: 'Быстро', color: 'text-green-400' };
+    if (ping < 100) return { label: 'Средне', color: 'text-yellow-400' };
+    return { label: 'Медленно', color: 'text-red-400' };
+  };
 
   const handleConnect = () => {
     setIsConnected(!isConnected);
@@ -169,7 +183,7 @@ export default function Index() {
             <h2 className="text-2xl font-bold">Выбор сервера</h2>
           </div>
 
-          <div className="relative mb-6">
+          <div className="relative mb-4">
             <Icon name="Search" size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input
               type="text"
@@ -178,6 +192,45 @@ export default function Index() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 bg-card/50 backdrop-blur-lg border-border"
             />
+          </div>
+
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+            <Button
+              variant={pingFilter === 'all' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setPingFilter('all')}
+              className="whitespace-nowrap"
+            >
+              <Icon name="Globe" size={16} className="mr-2" />
+              Все серверы
+            </Button>
+            <Button
+              variant={pingFilter === 'fast' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setPingFilter('fast')}
+              className="whitespace-nowrap"
+            >
+              <Icon name="Zap" size={16} className="mr-2" />
+              Быстрые
+            </Button>
+            <Button
+              variant={pingFilter === 'medium' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setPingFilter('medium')}
+              className="whitespace-nowrap"
+            >
+              <Icon name="Gauge" size={16} className="mr-2" />
+              Средние
+            </Button>
+            <Button
+              variant={pingFilter === 'slow' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setPingFilter('slow')}
+              className="whitespace-nowrap"
+            >
+              <Icon name="Turtle" size={16} className="mr-2" />
+              Медленные
+            </Button>
           </div>
 
           {filteredServers.length === 0 ? (
@@ -209,7 +262,8 @@ export default function Index() {
                   <div className="flex items-center gap-4">
                     <div className="text-right">
                       <p className="text-xs text-muted-foreground">Пинг</p>
-                      <p className="font-semibold text-green-400">{server.ping} мс</p>
+                      <p className={`font-semibold ${getPingBadge(server.ping).color}`}>{server.ping} мс</p>
+                      <p className={`text-xs ${getPingBadge(server.ping).color}`}>{getPingBadge(server.ping).label}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-muted-foreground">Нагрузка</p>
